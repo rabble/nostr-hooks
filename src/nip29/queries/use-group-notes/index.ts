@@ -29,10 +29,10 @@ export const useGroupNotes = (
   }
 ) => {
   const subId =
-    relay && groupId ? `${relay}-${groupId}-chatNotes-${JSON.stringify(filter)}` : undefined;
+    relay && groupId ? `${relay}-${groupId}-notes-${JSON.stringify(filter)}` : undefined;
 
-  const chatNotes = useNip29Store((state) =>
-    subId && groupId ? state.groups[subId]?.[groupId]?.chatNotes : undefined
+  const notes = useNip29Store((state) =>
+    subId && groupId ? state.groups[subId]?.[groupId]?.notes : undefined
   );
 
   const { events, hasMore, isLoading, createSubscription, loadMore } = useSubscription(subId);
@@ -55,7 +55,7 @@ export const useGroupNotes = (
     const relayUrls = [relay];
 
     const onEvent = (event: NDKEvent) => {
-      const chatNote: Nip29GroupNote = {
+      const note: Nip29GroupNote = {
         id: event.id,
         pubkey: event.pubkey,
         content: event.content,
@@ -63,7 +63,7 @@ export const useGroupNotes = (
         parentId: event.getMatchingTags('e')?.[0]?.[1] || undefined,
       };
 
-      addGroupNote(subId, groupId, chatNote);
+      addGroupNote(subId, groupId, note);
     };
 
     createSubscription({ filters, relayUrls, onEvent });
@@ -83,10 +83,10 @@ export const useGroupNotes = (
   ]);
 
   return {
-    chatNotes,
-    isLoadingChatNotes: isLoading,
-    hasMoreChatNotes: hasMore,
-    loadMoreChatNotes: loadMore,
-    chatNotesEvents: events,
+    notes,
+    isLoadingNotes: isLoading,
+    hasMoreNotes: hasMore,
+    loadMoreNotes: loadMore,
+    notesEvents: events,
   };
 }; 

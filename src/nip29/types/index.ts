@@ -88,7 +88,7 @@ export interface Nip29Group {
   joinRequests?: Nip29GroupJoinRequest[] | undefined;
   leaveRequests?: Nip29GroupLeaveRequest[] | undefined;
   chats?: Nip29GroupChat[] | undefined;
-  chatNotes?: Nip29GroupNote[] | undefined;
+  notes?: Nip29GroupNote[] | undefined;
   threads?: Nip29GroupThread[] | undefined;
   threadComments?: Nip29GroupThreadComment[] | undefined;
   reactions?: Nip29GroupReaction[] | undefined;

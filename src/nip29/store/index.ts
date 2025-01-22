@@ -97,7 +97,7 @@ type Nip29Actions = {
   addGroupNote: (
     subId: string | undefined,
     groupId: string | undefined,
-    chatNote: Nip29GroupNote
+    note: Nip29GroupNote
   ) => void;
   removeGroupNote: (
     subId: string | undefined,

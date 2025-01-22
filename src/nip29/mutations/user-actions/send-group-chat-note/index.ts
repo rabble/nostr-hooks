@@ -12,7 +12,7 @@ export const sendGroupNote = ({
 }: {
   relay: string;
   groupId: string;
-  chatNote: Pick<Nip29GroupNote, 'content' | 'parentId'>;
+  note: Pick<Nip29GroupNote, 'content' | 'parentId'>;
   onSuccess?: () => void;
   onError?: () => void;
 }) => {
@@ -23,9 +23,9 @@ export const sendGroupNote = ({
 
   const event = new NDKEvent(ndk);
   event.kind = 1;
-  event.content = chatNote.content;
+  event.content = note.content;
   event.tags = [['h', groupId]];
-  chatNote.parentId && event.tags.push(['e', chatNote.parentId]);
+  note.parentId && event.tags.push(['e', note.parentId]);
 
   event.publish(NDKRelaySet.fromRelayUrls([relay], ndk)).then(
     (r) => {

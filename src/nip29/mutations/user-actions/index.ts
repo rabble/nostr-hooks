@@ -4,3 +4,4 @@ export * from './send-group-leave-request';
 export * from './send-group-reaction';
 export * from './send-group-thread';
 export * from './send-group-thread-comment';
+export * from './send-group-chat-note';

@@ -70,6 +70,14 @@ export interface Nip29GroupReaction {
   targetId: string;
 }
 
+export interface Nip29GroupChatNote {
+  id: string;
+  pubkey: string;
+  content: string;
+  timestamp: number;
+  parentId?: string | undefined;
+}
+
 export interface Nip29Group {
   relay?: Nip29Relay;
   groupId?: Nip29GroupId;
@@ -80,6 +88,7 @@ export interface Nip29Group {
   joinRequests?: Nip29GroupJoinRequest[] | undefined;
   leaveRequests?: Nip29GroupLeaveRequest[] | undefined;
   chats?: Nip29GroupChat[] | undefined;
+  chatNotes?: Nip29GroupChatNote[] | undefined;
   threads?: Nip29GroupThread[] | undefined;
   threadComments?: Nip29GroupThreadComment[] | undefined;
   reactions?: Nip29GroupReaction[] | undefined;

@@ -13,6 +13,7 @@ import {
   Nip29GroupRole,
   Nip29GroupThread,
   Nip29GroupThreadComment,
+  Nip29GroupChatNote,
 } from '../types';
 
 type Nip29State = {
@@ -91,6 +92,17 @@ type Nip29Actions = {
     subId: string | undefined,
     groupId: string | undefined,
     reaction: Nip29GroupReaction
+  ) => void;
+
+  addGroupChatNote: (
+    subId: string | undefined,
+    groupId: string | undefined,
+    chatNote: Nip29GroupChatNote
+  ) => void;
+  removeGroupChatNote: (
+    subId: string | undefined,
+    groupId: string | undefined,
+    chatNote: Nip29GroupChatNote
   ) => void;
 };
 
@@ -399,6 +411,51 @@ export const useNip29Store = create<Nip29State & Nip29Actions>()((set) => ({
 
         state.groups[subId][groupId].reactions = state.groups[subId][groupId].reactions.filter(
           (r: Nip29GroupChat) => r.id !== reaction.id
+        );
+      })
+    );
+  },
+
+  addGroupChatNote: (subId, groupId, chatNote) => {
+    if (!subId || !groupId) return;
+
+    set(
+      produce((state: Nip29State) => {
+        if (state.groups[subId]) {
+          if (state.groups[subId][groupId]) {
+            if (state.groups[subId][groupId].chatNotes) {
+              state.groups[subId][groupId].chatNotes = [
+                ...state.groups[subId][groupId].chatNotes,
+                chatNote,
+              ]
+                .filter(
+                  (note, index, self) => self.findIndex((n) => n.id === note.id) === index
+                )
+                .sort((a, b) => a.timestamp - b.timestamp);
+            } else {
+              state.groups[subId][groupId].chatNotes = [chatNote];
+            }
+          } else {
+            state.groups[subId][groupId] = { chatNotes: [chatNote] };
+          }
+        } else {
+          state.groups[subId] = { [groupId]: { chatNotes: [chatNote] } };
+        }
+      })
+    );
+  },
+
+  removeGroupChatNote: (subId, groupId, chatNote) => {
+    if (!subId || !groupId) return;
+
+    set(
+      produce((state: Nip29State) => {
+        if (!state.groups[subId]) return;
+        if (!state.groups[subId][groupId]) return;
+        if (!state.groups[subId][groupId].chatNotes) return;
+
+        state.groups[subId][groupId].chatNotes = state.groups[subId][groupId].chatNotes.filter(
+          (n: Nip29GroupChatNote) => n.id !== chatNote.id
         );
       })
     );

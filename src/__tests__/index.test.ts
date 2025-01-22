@@ -3,8 +3,8 @@ jest.mock('react', () => {
   const actual = jest.requireActual('react') as Record<string, unknown>;
   return {
     ...actual,
-    useEffect: jest.fn().mockImplementation((f: () => void) => f()),
-    useCallback: jest.fn().mockImplementation((f: Function) => f),
+    useEffect: jest.fn().mockImplementation((f) => f()),
+    useCallback: jest.fn().mockImplementation((f) => f),
   };
 });
 

@@ -1,7 +1,8 @@
 
-import { describe, expect, it, jest } from '@jest/globals';
+import { describe, expect, it, jest, beforeEach } from '@jest/globals';
 import { useNdk } from '../hooks/use-ndk';
 import { useLogin } from '../hooks/use-login';
+import { useGroupChatNotes } from '../nip29/queries/use-group-chat-notes';
 const mockCreateSubscription = jest.fn();
 jest.mock('../store', () => ({
   useStore: jest.fn((selector: (state: any) => any) => selector({
@@ -52,59 +53,35 @@ describe('useNdk hook', () => {
 });
 
 describe('useGroupChatNotes hook', () => {
-  const mockEvents = [
-    {
-      id: 'note1',
-      pubkey: 'pub1',
-      content: 'test content 1',
-      created_at: 1234567890,
-      getMatchingTags: () => [['e', 'parent1']],
-    },
-    {
-      id: 'note2',
-      pubkey: 'pub2',
-      content: 'test content 2',
-      created_at: 1234567891,
-      getMatchingTags: () => [],
-    },
-  ];
-
   beforeEach(() => {
     mockCreateSubscription.mockClear();
   });
 
   it('should not create subscription without relay and groupId', () => {
-    const { createSubscription } = useSubscription('test-sub');
-    createSubscription({
-      filters: [],
-      relayUrls: [],
-      onEvent: jest.fn(),
-    });
-
+    const { chatNotes } = useGroupChatNotes(undefined, undefined);
+    expect(chatNotes).toBeUndefined();
     expect(mockCreateSubscription).not.toHaveBeenCalled();
   });
 
   it('should create subscription with correct filters', () => {
-    const { createSubscription } = useSubscription('test-sub');
     const relay = 'wss://test.relay';
     const groupId = 'group123';
     
-    createSubscription({
-      filters: [{ kinds: [1], '#h': [groupId], limit: 10 }],
-      relayUrls: [relay],
-      onEvent: jest.fn(),
-    });
+    useGroupChatNotes(relay, groupId);
 
     expect(mockCreateSubscription).toHaveBeenCalledWith(
       expect.objectContaining({
-        filters: [expect.objectContaining({ kinds: [1], '#h': [groupId], limit: 10 })],
+        filters: [expect.objectContaining({ 
+          kinds: [1], 
+          '#h': [groupId],
+          limit: 10 
+        })],
         relayUrls: [relay],
       })
     );
   });
 
   it('should handle optional filter parameters', () => {
-    const { createSubscription } = useSubscription('test-sub');
     const relay = 'wss://test.relay';
     const groupId = 'group123';
     const filter = {
@@ -114,18 +91,7 @@ describe('useGroupChatNotes hook', () => {
       limit: 20,
     };
 
-    createSubscription({
-      filters: [{
-        kinds: [1],
-        '#h': [groupId],
-        authors: [filter.byPubkey.pubkey],
-        since: filter.since,
-        until: filter.until,
-        limit: filter.limit,
-      }],
-      relayUrls: [relay],
-      onEvent: jest.fn(),
-    });
+    useGroupChatNotes(relay, groupId, filter);
 
     expect(mockCreateSubscription).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -137,6 +103,7 @@ describe('useGroupChatNotes hook', () => {
           until: 2000,
           limit: 20,
         })],
+        relayUrls: [relay],
       })
     );
   });

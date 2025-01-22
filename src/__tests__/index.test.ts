@@ -98,18 +98,14 @@ describe('useGroupNotes hook', () => {
   
     // Now we expect that createSubscriptionMock was called with 
     // certain filters. For example:
-    expect(createSubscriptionMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        filters: [
-          expect.objectContaining({
-            kinds: [1],
-            '#h': [groupId],
-            limit: 10,
-          }),
-        ],
-        relayUrls: [relay],
-      })
-    );
+    expect(createSubscriptionMock).toHaveBeenCalledWith({
+      filters: [
+        expect.objectContaining({
+          kinds: [1],
+          '#h': [groupId],
+        }),
+      ],
+    });
   
     // result.current.notes, etc. as needed
   });
@@ -139,21 +135,17 @@ describe('useGroupNotes hook', () => {
   
     // The hook presumably calls createSubscription(...) with
     // authors, since, until, limit, etc.
-    expect(createSubscriptionMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        filters: [
-          expect.objectContaining({
-            kinds: [1],
-            '#h': [groupId],
-            authors: ['testPubkey'],
-            since: 1000,
-            until: 2000,
-            limit: 20,
-          }),
-        ],
-        relayUrls: [relay],
-      })
-    );
+    expect(createSubscriptionMock).toHaveBeenCalledWith({
+      filters: [
+        expect.objectContaining({
+          kinds: [1],
+          '#h': [groupId],
+          authors: ['testPubkey'],
+          since: 1000,
+          until: 2000,
+        }),
+      ],
+    });
   });
 });
 

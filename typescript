@@ -7,8 +7,6 @@ import { Nip29GroupNote } from '../../types';
 
 const addGroupNote = useNip29Store.getState().addGroupNote;
 
-const addGroupNote = useNip29Store.getState().addGroupNote;
-
 export const useGroupNotes = (
   relay: string | undefined,
   groupId: string | undefined,

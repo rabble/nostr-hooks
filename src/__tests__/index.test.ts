@@ -1,10 +1,38 @@
+// Setup mocks before any imports
+const mockState = {
+  groups: {
+    'relay1-group1-metadata': {
+      'group1': {
+        metadata: {
+          name: 'Test Group',
+          picture: 'https://example.com/pic.jpg',
+          about: 'Test Description',
+          isPublic: true,
+          isOpen: true,
+        }
+      }
+    }
+  },
+  updateGroupMetadata: jest.fn()
+};
+
+jest.mock('../nip29/store', () => ({
+  useNip29Store: Object.assign(
+    jest.fn((selector) => {
+      if (typeof selector === 'function') {
+        return selector(mockState);
+      }
+      return mockState;
+    }),
+    { getState: () => mockState }
+  )
+}));
+
 import { describe, expect, it, jest, beforeEach } from '@jest/globals';
 import { useNdk } from '../hooks/use-ndk';
 import { useLogin } from '../hooks/use-login';
 import { useGroupMetadata } from '../nip29/queries/use-group-metadata';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
-
-// Mock the store
 const mockCreateSubscription = jest.fn();
 jest.mock('../store', () => ({
   useStore: jest.fn((selector: (state: any) => any) => selector({
@@ -28,36 +56,6 @@ jest.mock('../store', () => ({
   })),
 }));
 
-// Mock nip29 store
-const mockUpdateGroupMetadata = jest.fn();
-const mockState = {
-  groups: {
-    'relay1-group1-metadata': {
-      'group1': {
-        metadata: {
-          name: 'Test Group',
-          picture: 'https://example.com/pic.jpg',
-          about: 'Test Description',
-          isPublic: true,
-          isOpen: true,
-        }
-      }
-    }
-  },
-  updateGroupMetadata: mockUpdateGroupMetadata
-};
-
-jest.mock('../nip29/store', () => ({
-  useNip29Store: Object.assign(
-    jest.fn((selector) => {
-      if (typeof selector === 'function') {
-        return selector(mockState);
-      }
-      return mockState;
-    }),
-    { getState: () => mockState }
-  )
-}));
 
 describe('useNdk hook', () => {
   it('should return ndk related functions and state', () => {

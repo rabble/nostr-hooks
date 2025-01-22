@@ -423,23 +423,23 @@ export const useNip29Store = create<Nip29State & Nip29Actions>()((set) => ({
       produce((state: Nip29State) => {
         if (state.groups[subId]) {
           if (state.groups[subId][groupId]) {
-            if (state.groups[subId][groupId].chatNotes) {
-              state.groups[subId][groupId].chatNotes = [
-                ...state.groups[subId][groupId].chatNotes,
-                note,
+            if (state.groups[subId][groupId].notes) {
+              state.groups[subId][groupId].notes = [
+                ...state.groups[subId][groupId].notes,
+                chatNote,
               ]
                 .filter(
                   (note, index, self) => self.findIndex((n) => n.id === note.id) === index
                 )
                 .sort((a, b) => a.timestamp - b.timestamp);
             } else {
-              state.groups[subId][groupId].chatNotes = [chatNote];
+              state.groups[subId][groupId].notes = [chatNote];
             }
           } else {
-            state.groups[subId][groupId] = { chatNotes: [chatNote] };
+            state.groups[subId][groupId] = { notes: [chatNote] };
           }
         } else {
-          state.groups[subId] = { [groupId]: { chatNotes: [chatNote] } };
+          state.groups[subId] = { [groupId]: { notes: [chatNote] } };
         }
       })
     );
@@ -452,9 +452,9 @@ export const useNip29Store = create<Nip29State & Nip29Actions>()((set) => ({
       produce((state: Nip29State) => {
         if (!state.groups[subId]) return;
         if (!state.groups[subId][groupId]) return;
-        if (!state.groups[subId][groupId].chatNotes) return;
+        if (!state.groups[subId][groupId].notes) return;
 
-        state.groups[subId][groupId].chatNotes = state.groups[subId][groupId].chatNotes.filter(
+        state.groups[subId][groupId].notes = state.groups[subId][groupId].notes.filter(
           (n: Nip29GroupNote) => n.id !== chatNote.id
         );
       })

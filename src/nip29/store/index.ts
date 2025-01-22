@@ -426,7 +426,7 @@ export const useNip29Store = create<Nip29State & Nip29Actions>()((set) => ({
             if (state.groups[subId][groupId].chatNotes) {
               state.groups[subId][groupId].chatNotes = [
                 ...state.groups[subId][groupId].chatNotes,
-                chatNote,
+                note,
               ]
                 .filter(
                   (note, index, self) => self.findIndex((n) => n.id === note.id) === index

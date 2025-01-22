@@ -4,6 +4,8 @@ import { useNdk } from '../hooks/use-ndk';
 import { useLogin } from '../hooks/use-login';
 import { useGroupNotes } from '../nip29/queries/use-group-notes';
 const mockCreateSubscription = jest.fn();
+const mockAddGroupNote = jest.fn();
+
 jest.mock('../store', () => ({
   useStore: jest.fn((selector: (state: any) => any) => selector({
     // Mock initial state
@@ -23,6 +25,13 @@ jest.mock('../store', () => ({
     logout: jest.fn(),
     createSubscription: mockCreateSubscription,
     removeSubscription: jest.fn(),
+  })),
+}));
+
+jest.mock('../nip29/store', () => ({
+  useNip29Store: jest.fn((selector: (state: any) => any) => selector({
+    groups: {},
+    addGroupNote: mockAddGroupNote,
   })),
 }));
 

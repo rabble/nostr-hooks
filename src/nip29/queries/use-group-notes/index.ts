@@ -46,8 +46,7 @@ export const useGroupNotes = (
       ids: filter?.byId?.id ? [filter.byId.id] : undefined,
       '#e': filter?.byParentId?.parentId ? [filter.byParentId.parentId] : undefined,
       since: filter?.since,
-      until: filter?.until,
-      limit: filter?.limit || 10
+      until: filter?.until
     }];
 
     createSubscription({ filters });

@@ -30,31 +30,33 @@ jest.mock('../store', () => ({
 
 // Mock nip29 store
 const mockUpdateGroupMetadata = jest.fn();
-jest.mock('../nip29/store', () => ({
-  useNip29Store: jest.fn((selector: (state: any) => any) => {
-    if (typeof selector === 'function') {
-      return selector({
-        groups: {
-          'relay1-group1-metadata': {
-            'group1': {
-              metadata: {
-                name: 'Test Group',
-                picture: 'https://example.com/pic.jpg',
-                about: 'Test Description',
-                isPublic: true,
-                isOpen: true,
-              }
-            }
-          }
+const mockState = {
+  groups: {
+    'relay1-group1-metadata': {
+      'group1': {
+        metadata: {
+          name: 'Test Group',
+          picture: 'https://example.com/pic.jpg',
+          about: 'Test Description',
+          isPublic: true,
+          isOpen: true,
         }
-      });
+      }
     }
-    return {
-      getState: () => ({
-        updateGroupMetadata: mockUpdateGroupMetadata
-      })
-    };
-  })
+  },
+  updateGroupMetadata: mockUpdateGroupMetadata
+};
+
+jest.mock('../nip29/store', () => ({
+  useNip29Store: Object.assign(
+    jest.fn((selector) => {
+      if (typeof selector === 'function') {
+        return selector(mockState);
+      }
+      return mockState;
+    }),
+    { getState: () => mockState }
+  )
 }));
 
 describe('useNdk hook', () => {

@@ -1,12 +1,9 @@
 // Mock React hooks
-jest.mock('react', () => {
-  const actual = jest.requireActual('react') as Record<string, unknown>;
-  return {
-    ...actual,
-    useEffect: jest.fn().mockImplementation((f) => f()),
-    useCallback: jest.fn().mockImplementation((f) => f),
-  };
-});
+jest.mock('react', () => ({
+  ...jest.requireActual('react'),
+  useEffect: jest.fn((callback: () => void | (() => void)) => callback()),
+  useCallback: jest.fn(<T extends (...args: any[]) => any>(callback: T) => callback),
+}));
 
 // Setup mocks before any imports
 const mockState = {

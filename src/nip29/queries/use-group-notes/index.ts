@@ -26,8 +26,9 @@ export const useGroupNotes = (
     limit?: number | undefined;
   }
 ) => {
-  const subId =
-    relay && groupId ? `${relay}-${groupId}-notes-${JSON.stringify(filter)}` : undefined;
+  const subId = relay && groupId
+    ? `${relay}-${groupId}-notes${filter ? `-${JSON.stringify(filter)}` : ''}`
+    : undefined;
 
   const notes = useNip29Store((state) =>
     subId && groupId ? state.groups[subId]?.[groupId]?.notes : undefined

@@ -85,7 +85,7 @@ describe('useGroupNotes hook', () => {
     const relay = 'wss://test.relay';
     const groupId = 'group123';
     const filter = {
-      byPubkey: { pubkey: 'testPubkey', waitForPubkey: true },
+      byPubkey: { pubkey: 'testPubkey', waitForPubkey: true as const },
       since: 1000,
       until: 2000,
       limit: 20,
@@ -107,7 +107,7 @@ describe('useGroupNotes hook', () => {
       })
     );
   });
-
+});
 
 describe('useLogin hook', () => {
   it('should return login related functions and state', () => {

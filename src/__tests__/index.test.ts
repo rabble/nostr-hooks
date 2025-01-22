@@ -115,7 +115,7 @@ describe('useGroupMetadata hook', () => {
     });
 
     const mockUpdateGroupMetadata = jest.fn();
-    const mockNip29Store = jest.requireMock('../nip29/store');
+    const mockNip29Store = jest.requireMock('../nip29/store') as { useNip29Store: jest.Mock };
     mockNip29Store.useNip29Store.mockImplementation(() => ({
       updateGroupMetadata: mockUpdateGroupMetadata
     }));

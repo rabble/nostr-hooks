@@ -38,9 +38,6 @@ export const useGroupNotes = (
 
   useEffect(() => {
     if (!relay || !groupId || !subId) return;
-    if (filter?.byPubkey?.waitForPubkey && !filter.byPubkey.pubkey) return;
-    if (filter?.byId?.waitForId && !filter.byId.id) return;
-    if (filter?.byParentId?.waitForParentId && !filter.byParentId.parentId) return;
 
     let f: NDKFilter = { kinds: [1], limit: filter?.limit || 10 };
     if (groupId) f['#h'] = [groupId];
@@ -72,11 +69,8 @@ export const useGroupNotes = (
     relay,
     groupId,
     filter?.byPubkey?.pubkey,
-    filter?.byPubkey?.waitForPubkey,
     filter?.byId?.id,
-    filter?.byId?.waitForId,
     filter?.byParentId?.parentId,
-    filter?.byParentId?.waitForParentId,
     filter?.since,
     filter?.until,
     createSubscription,

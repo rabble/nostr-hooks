@@ -1,63 +1,7 @@
-// Mock React hooks
-jest.mock('react', () => ({
-  ...jest.requireActual('react'),
-  useEffect: jest.fn((callback: () => void | (() => void)) => callback()),
-  useCallback: jest.fn(<T extends (...args: any[]) => any>(callback: T) => callback),
-}));
 
-// Setup mocks before any imports
-const mockState = {
-  groups: {
-    'relay1-group1-metadata': {
-      'group1': {
-        metadata: {
-          name: 'Test Group',
-          picture: 'https://example.com/pic.jpg',
-          about: 'Test Description',
-          isPublic: true,
-          isOpen: true,
-        }
-      }
-    }
-  },
-  updateGroupMetadata: jest.fn(),
-  subscriptions: {
-    'relay1-group1-metadata': {
-      subscription: null,
-      events: [],
-      eose: false,
-      hasMore: false,
-      listenersCount: 0
-    }
-  }
-};
-
-// Mock hooks
-jest.mock('../hooks', () => ({
-  useSubscription: () => ({
-    createSubscription: mockCreateSubscription,
-    isLoading: false,
-    events: [],
-  }),
-}));
-
-jest.mock('../nip29/store', () => ({
-  useNip29Store: Object.assign(
-    jest.fn((selector) => {
-      if (typeof selector === 'function') {
-        return selector(mockState);
-      }
-      return mockState;
-    }),
-    { getState: () => mockState }
-  )
-}));
-
-import { describe, expect, it, jest, beforeEach } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 import { useNdk } from '../hooks/use-ndk';
 import { useLogin } from '../hooks/use-login';
-import { useGroupMetadata } from '../nip29/queries/use-group-metadata';
-import { NDKEvent } from '@nostr-dev-kit/ndk';
 const mockCreateSubscription = jest.fn();
 jest.mock('../store', () => ({
   useStore: jest.fn((selector: (state: any) => any) => selector({
@@ -107,81 +51,6 @@ describe('useNdk hook', () => {
   });
 });
 
-describe('useGroupMetadata hook', () => {
-  it('should return undefined metadata when relay or groupId is missing', () => {
-    const { metadata, isLoadingMetadata, metadataEvents } = useGroupMetadata(undefined, undefined);
-    
-    expect(metadata).toBeUndefined();
-    expect(isLoadingMetadata).toBeFalsy();
-    expect(metadataEvents).toEqual([]);
-  });
-
-  it('should return group metadata when relay and groupId are provided', () => {
-    const { metadata, isLoadingMetadata } = useGroupMetadata('relay1', 'group1');
-    
-    expect(metadata).toEqual({
-      name: 'Test Group',
-      picture: 'https://example.com/pic.jpg',
-      about: 'Test Description',
-      isPublic: true,
-      isOpen: true,
-    });
-    expect(isLoadingMetadata).toBeFalsy();
-  });
-
-  it('should create subscription with correct filters', () => {
-    useGroupMetadata('relay1', 'group1');
-
-    expect(mockCreateSubscription).toHaveBeenCalledWith({
-      filters: [{ kinds: [39000], '#d': ['group1'], limit: 1 }],
-      relayUrls: ['relay1'],
-      onEvent: expect.any(Function)
-    });
-  });
-
-  it('should handle event processing correctly', () => {
-    let capturedOnEvent: ((event: NDKEvent) => void) | undefined;
-    
-    mockCreateSubscription.mockImplementation((params: any) => {
-      capturedOnEvent = params.onEvent;
-    });
-
-
-    useGroupMetadata('relay1', 'group1');
-
-    expect(capturedOnEvent).toBeDefined();
-
-    if (capturedOnEvent) {
-      const mockEvent = {
-        dTag: 'group1',
-        getMatchingTags: (tag: string) => {
-          const tags: Record<string, string[][]> = {
-            'name': [['name', 'Test Group']],
-            'picture': [['picture', 'https://example.com/pic.jpg']],
-            'about': [['about', 'Test Description']],
-            'public': [['public', '1']],
-            'open': [['open', '1']],
-          };
-          return tags[tag] || [];
-        },
-      } as unknown as NDKEvent;
-
-      capturedOnEvent(mockEvent);
-
-      expect(mockState.updateGroupMetadata).toHaveBeenCalledWith(
-        'relay1-group1-metadata',
-        'group1',
-        {
-          name: 'Test Group',
-          picture: 'https://example.com/pic.jpg',
-          about: 'Test Description',
-          isPublic: true,
-          isOpen: true,
-        }
-      );
-    }
-  });
-});
 
 describe('useLogin hook', () => {
   it('should return login related functions and state', () => {

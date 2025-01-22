@@ -50,7 +50,7 @@ export const useGroupNotes = (
       limit: filter?.limit || 10
     }];
 
-    createSubscription(filters);
+    createSubscription({ filters });
   }, [
     subId,
     relay,

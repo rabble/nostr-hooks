@@ -39,14 +39,14 @@ export const useGroupNotes = (
   useEffect(() => {
     if (!relay || !groupId) return;
 
-    const filters = [{
+    const filters: NDKFilter[] = [{
       kinds: [1],
       '#h': [groupId],
-      authors: filter?.byPubkey?.pubkey ? [filter.byPubkey.pubkey] : undefined,
-      ids: filter?.byId?.id ? [filter.byId.id] : undefined,
-      '#e': filter?.byParentId?.parentId ? [filter.byParentId.parentId] : undefined,
-      since: filter?.since,
-      until: filter?.until
+      ...(filter?.byPubkey?.pubkey && { authors: [filter.byPubkey.pubkey] }),
+      ...(filter?.byId?.id && { ids: [filter.byId.id] }),
+      ...(filter?.byParentId?.parentId && { '#e': [filter.byParentId.parentId] }),
+      ...(filter?.since && { since: filter.since }),
+      ...(filter?.until && { until: filter.until })
     }];
 
     createSubscription({ filters });

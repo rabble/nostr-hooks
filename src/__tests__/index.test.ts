@@ -143,7 +143,7 @@ describe('useGroupMetadata hook', () => {
 
       capturedOnEvent(mockEvent);
 
-      expect(mockUpdateGroupMetadata).toHaveBeenCalledWith(
+      expect(mockState.updateGroupMetadata).toHaveBeenCalledWith(
         'relay1-group1-metadata',
         'group1',
         {

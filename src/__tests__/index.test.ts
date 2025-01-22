@@ -112,13 +112,13 @@ describe('useGroupMetadata hook', () => {
     
     mockCreateSubscription.mockImplementation((params: any) => {
       capturedOnEvent = params.onEvent;
-      capturedOnEvent = onEvent;
     });
 
     const mockUpdateGroupMetadata = jest.fn();
-    jest.spyOn(useNip29Store, 'getState').mockReturnValue({
+    const mockNip29Store = jest.requireMock('../nip29/store');
+    mockNip29Store.useNip29Store.mockImplementation(() => ({
       updateGroupMetadata: mockUpdateGroupMetadata
-    });
+    }));
 
     useGroupMetadata('relay1', 'group1');
 

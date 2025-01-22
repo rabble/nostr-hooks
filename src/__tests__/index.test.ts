@@ -12,7 +12,7 @@ jest.mock('../hooks/use-subscription', () => ({
 
 // Simple store mock
 jest.mock('../store', () => ({
-  useStore: jest.fn((selector) => selector({
+  useStore: jest.fn((selector: any) => selector({
     ndk: undefined,
     subscriptions: {},
   })),
@@ -20,7 +20,7 @@ jest.mock('../store', () => ({
 
 // Simple Nip29 store mock
 jest.mock('../nip29/store', () => ({
-  useNip29Store: jest.fn((selector) => selector({
+  useNip29Store: jest.fn((selector: any) => selector({
     groups: {},
     addGroupNote: jest.fn(),
   })),

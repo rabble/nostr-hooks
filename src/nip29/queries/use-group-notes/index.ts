@@ -37,33 +37,20 @@ export const useGroupNotes = (
   const { events, hasMore, isLoading, createSubscription, loadMore } = useSubscription(subId);
 
   useEffect(() => {
-    if (!relay || !groupId || !subId) return;
+    if (!relay || !groupId) return;
 
-    let f: NDKFilter = { kinds: [1], limit: filter?.limit || 10 };
-    if (groupId) f['#h'] = [groupId];
-    if (filter?.byPubkey?.pubkey) f.authors = [filter.byPubkey.pubkey];
-    if (filter?.byId?.id) f.ids = [filter.byId.id];
-    if (filter?.byParentId?.parentId) f['#e'] = [filter.byParentId.parentId];
-    if (filter?.since) f.since = filter.since;
-    if (filter?.until) f.until = filter.until;
+    const filters = [{
+      kinds: [1],
+      '#h': [groupId],
+      authors: filter?.byPubkey?.pubkey ? [filter.byPubkey.pubkey] : undefined,
+      ids: filter?.byId?.id ? [filter.byId.id] : undefined,
+      '#e': filter?.byParentId?.parentId ? [filter.byParentId.parentId] : undefined,
+      since: filter?.since,
+      until: filter?.until,
+      limit: filter?.limit || 10
+    }];
 
-    const filters = [f];
-    const relayUrls = [relay];
-
-    const onEvent = (event: NDKEvent) => {
-      const note: Nip29GroupNote = {
-        id: event.id,
-        pubkey: event.pubkey,
-        content: event.content,
-        timestamp: event.created_at || 0,
-        parentId: event.getMatchingTags('e')?.[0]?.[1] || undefined,
-      };
-
-      const addGroupNote = useNip29Store.getState().addGroupNote;
-      addGroupNote(subId, groupId, note);
-    };
-
-    createSubscription({ filters, relayUrls, onEvent });
+    createSubscription(filters);
   }, [
     subId,
     relay,

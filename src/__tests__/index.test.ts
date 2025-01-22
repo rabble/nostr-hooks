@@ -28,26 +28,33 @@ jest.mock('../store', () => ({
   })),
 }));
 
+// Mock nip29 store
+const mockUpdateGroupMetadata = jest.fn();
 jest.mock('../nip29/store', () => ({
-  useNip29Store: jest.fn((selector: (state: any) => any) => selector({
-    groups: {
-      'relay1-group1-metadata': {
-        'group1': {
-          metadata: {
-            name: 'Test Group',
-            picture: 'https://example.com/pic.jpg',
-            about: 'Test Description',
-            isPublic: true,
-            isOpen: true,
+  useNip29Store: jest.fn((selector: (state: any) => any) => {
+    if (typeof selector === 'function') {
+      return selector({
+        groups: {
+          'relay1-group1-metadata': {
+            'group1': {
+              metadata: {
+                name: 'Test Group',
+                picture: 'https://example.com/pic.jpg',
+                about: 'Test Description',
+                isPublic: true,
+                isOpen: true,
+              }
+            }
           }
         }
-      }
-    },
-    updateGroupMetadata: jest.fn(),
-    getState: () => ({
-      updateGroupMetadata: jest.fn()
-    })
-  })),
+      });
+    }
+    return {
+      getState: () => ({
+        updateGroupMetadata: mockUpdateGroupMetadata
+      })
+    };
+  })
 }));
 
 describe('useNdk hook', () => {
@@ -114,11 +121,6 @@ describe('useGroupMetadata hook', () => {
       capturedOnEvent = params.onEvent;
     });
 
-    const mockUpdateGroupMetadata = jest.fn();
-    const mockNip29Store = jest.requireMock('../nip29/store') as { useNip29Store: jest.Mock };
-    mockNip29Store.useNip29Store.mockImplementation(() => ({
-      updateGroupMetadata: mockUpdateGroupMetadata
-    }));
 
     useGroupMetadata('relay1', 'group1');
 

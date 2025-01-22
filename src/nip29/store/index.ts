@@ -13,7 +13,7 @@ import {
   Nip29GroupRole,
   Nip29GroupThread,
   Nip29GroupThreadComment,
-  Nip29GroupChatNote,
+  Nip29GroupNote,
 } from '../types';
 
 type Nip29State = {
@@ -94,15 +94,15 @@ type Nip29Actions = {
     reaction: Nip29GroupReaction
   ) => void;
 
-  addGroupChatNote: (
+  addGroupNote: (
     subId: string | undefined,
     groupId: string | undefined,
-    chatNote: Nip29GroupChatNote
+    chatNote: Nip29GroupNote
   ) => void;
-  removeGroupChatNote: (
+  removeGroupNote: (
     subId: string | undefined,
     groupId: string | undefined,
-    chatNote: Nip29GroupChatNote
+    chatNote: Nip29GroupNote
   ) => void;
 };
 
@@ -416,7 +416,7 @@ export const useNip29Store = create<Nip29State & Nip29Actions>()((set) => ({
     );
   },
 
-  addGroupChatNote: (subId, groupId, chatNote) => {
+  addGroupNote: (subId, groupId, chatNote) => {
     if (!subId || !groupId) return;
 
     set(
@@ -445,7 +445,7 @@ export const useNip29Store = create<Nip29State & Nip29Actions>()((set) => ({
     );
   },
 
-  removeGroupChatNote: (subId, groupId, chatNote) => {
+  removeGroupNote: (subId, groupId, chatNote) => {
     if (!subId || !groupId) return;
 
     set(
@@ -455,7 +455,7 @@ export const useNip29Store = create<Nip29State & Nip29Actions>()((set) => ({
         if (!state.groups[subId][groupId].chatNotes) return;
 
         state.groups[subId][groupId].chatNotes = state.groups[subId][groupId].chatNotes.filter(
-          (n: Nip29GroupChatNote) => n.id !== chatNote.id
+          (n: Nip29GroupNote) => n.id !== chatNote.id
         );
       })
     );

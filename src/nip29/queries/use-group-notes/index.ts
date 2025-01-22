@@ -3,11 +3,11 @@ import { useEffect } from 'react';
 
 import { useSubscription } from '../../../hooks';
 import { useNip29Store } from '../../../nip29/store';
-import { Nip29GroupChatNote } from '../../types';
+import { Nip29GroupNote } from '../../types';
 
-const addGroupChatNote = useNip29Store.getState().addGroupChatNote;
+const addGroupNote = useNip29Store.getState().addGroupNote;
 
-export const useGroupChatNotes = (
+export const useGroupNotes = (
   relay: string | undefined,
   groupId: string | undefined,
   filter?: {
@@ -55,7 +55,7 @@ export const useGroupChatNotes = (
     const relayUrls = [relay];
 
     const onEvent = (event: NDKEvent) => {
-      const chatNote: Nip29GroupChatNote = {
+      const chatNote: Nip29GroupNote = {
         id: event.id,
         pubkey: event.pubkey,
         content: event.content,
@@ -63,7 +63,7 @@ export const useGroupChatNotes = (
         parentId: event.getMatchingTags('e')?.[0]?.[1] || undefined,
       };
 
-      addGroupChatNote(subId, groupId, chatNote);
+      addGroupNote(subId, groupId, chatNote);
     };
 
     createSubscription({ filters, relayUrls, onEvent });

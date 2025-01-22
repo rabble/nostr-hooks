@@ -1,9 +1,9 @@
 import { NDKEvent, NDKRelaySet } from '@nostr-dev-kit/ndk';
 
 import { useStore } from '../../../../store';
-import { Nip29GroupChatNote } from '../../../types';
+import { Nip29GroupNote } from '../../../types';
 
-export const sendGroupChatNote = ({
+export const sendGroupNote = ({
   relay,
   groupId,
   chatNote,
@@ -12,7 +12,7 @@ export const sendGroupChatNote = ({
 }: {
   relay: string;
   groupId: string;
-  chatNote: Pick<Nip29GroupChatNote, 'content' | 'parentId'>;
+  chatNote: Pick<Nip29GroupNote, 'content' | 'parentId'>;
   onSuccess?: () => void;
   onError?: () => void;
 }) => {

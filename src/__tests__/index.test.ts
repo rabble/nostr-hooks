@@ -5,6 +5,7 @@ import { useGroupMetadata } from '../nip29/queries/use-group-metadata';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
 
 // Mock the store
+const mockCreateSubscription = jest.fn();
 jest.mock('../store', () => ({
   useStore: jest.fn((selector: (state: any) => any) => selector({
     // Mock initial state
@@ -22,7 +23,7 @@ jest.mock('../store', () => ({
     loginWithPrivateKey: jest.fn(),
     loginWithRemoteSigner: jest.fn(),
     logout: jest.fn(),
-    createSubscription: jest.fn(),
+    createSubscription: mockCreateSubscription,
     removeSubscription: jest.fn(),
   })),
 }));

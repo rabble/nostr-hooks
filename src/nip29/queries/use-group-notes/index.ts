@@ -5,8 +5,6 @@ import { useSubscription } from '../../../hooks';
 import { useNip29Store } from '../../../nip29/store';
 import { Nip29GroupNote } from '../../types';
 
-const addGroupNote = useNip29Store.getState().addGroupNote;
-
 export const useGroupNotes = (
   relay: string | undefined,
   groupId: string | undefined,

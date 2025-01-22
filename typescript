@@ -61,7 +61,8 @@ export const useGroupNotes = (
         parentId: event.getMatchingTags('e')?.[0]?.[1] || undefined,
       };
 
-      useNip29Store.getState().addGroupNote(subId, groupId, note);
+      const addGroupNote = useNip29Store.getState().addGroupNote;
+      addGroupNote(subId, groupId, note);
     };
 
     createSubscription({ filters, relayUrls, onEvent });

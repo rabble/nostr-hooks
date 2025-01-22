@@ -1,40 +1,30 @@
-
 import { describe, expect, it, jest, beforeEach } from '@jest/globals';
+import { renderHook } from '@testing-library/react';
 import { useNdk } from '../hooks/use-ndk';
 import { useLogin } from '../hooks/use-login';
 import { useGroupNotes } from '../nip29/queries/use-group-notes';
-const mockCreateSubscription = jest.fn();
-const mockAddGroupNote = jest.fn();
+import { useSubscription } from '../hooks/use-subscription';
 
+// Mock useSubscription hook
+jest.mock('../hooks/use-subscription', () => ({
+  useSubscription: jest.fn()
+}));
+
+// Simple store mock
 jest.mock('../store', () => ({
-  useStore: jest.fn((selector: (state: any) => any) => selector({
-    // Mock initial state
+  useStore: jest.fn((selector) => selector({
     ndk: undefined,
-    initNdk: jest.fn(),
-    setSigner: jest.fn(),
-    constructorParams: undefined,
-    loginData: {
-      privateKey: undefined,
-      loginMethod: undefined,
-      nip46Address: undefined
-    },
-    loginFromLocalStorage: jest.fn(),
-    loginWithExtension: jest.fn(),
-    loginWithPrivateKey: jest.fn(),
-    loginWithRemoteSigner: jest.fn(),
-    logout: jest.fn(),
-    createSubscription: mockCreateSubscription,
-    removeSubscription: jest.fn(),
+    subscriptions: {},
   })),
 }));
 
+// Simple Nip29 store mock
 jest.mock('../nip29/store', () => ({
-  useNip29Store: jest.fn((selector: (state: any) => any) => selector({
+  useNip29Store: jest.fn((selector) => selector({
     groups: {},
-    addGroupNote: mockAddGroupNote,
+    addGroupNote: jest.fn(),
   })),
 }));
-
 
 describe('useNdk hook', () => {
   it('should return ndk related functions and state', () => {
@@ -63,34 +53,79 @@ describe('useNdk hook', () => {
 
 describe('useGroupNotes hook', () => {
   beforeEach(() => {
-    mockCreateSubscription.mockClear();
+    jest.clearAllMocks();
   });
 
+  
   it('should not create subscription without relay and groupId', () => {
-    const { notes } = useGroupNotes(undefined, undefined);
-    expect(notes).toBeUndefined();
+    // Provide a mock return value that does *nothing* except hand back stub data.
+    const mockCreateSubscription = jest.fn();
+    (useSubscription as jest.Mock).mockReturnValue({
+      events: [],
+      hasMore: false,
+      isLoading: false,
+      createSubscription: mockCreateSubscription,
+      removeSubscription: jest.fn(),
+      loadMore: jest.fn(),
+    });
+  
+    const { result } = renderHook(() => useGroupNotes(undefined, undefined));
+  
+    // Because relay & groupId are undefined, presumably the hook never calls
+    // `createSubscription`, so let's just verify the shape we expect.
+    expect(result.current.notes).toBeUndefined();
+    // Check that createSubscription was never called:
     expect(mockCreateSubscription).not.toHaveBeenCalled();
   });
 
   it('should create subscription with correct filters', () => {
+    const createSubscriptionMock = jest.fn();
+  
+    (useSubscription as jest.Mock).mockReturnValue({
+      events: [],
+      hasMore: false,
+      isLoading: false,
+      createSubscription: createSubscriptionMock,
+      removeSubscription: jest.fn(),
+      loadMore: jest.fn(),
+    });
+  
     const relay = 'wss://test.relay';
     const groupId = 'group123';
-    
-    useGroupNotes(relay, groupId);
-
-    expect(mockCreateSubscription).toHaveBeenCalledWith(
+  
+    // Render the custom hook that *uses* useSubscription internally
+    const { result } = renderHook(() => useGroupNotes(relay, groupId));
+  
+    // Now we expect that createSubscriptionMock was called with 
+    // certain filters. For example:
+    expect(createSubscriptionMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        filters: [expect.objectContaining({ 
-          kinds: [1], 
-          '#h': [groupId],
-          limit: 10 
-        })],
+        filters: [
+          expect.objectContaining({
+            kinds: [1],
+            '#h': [groupId],
+            limit: 10,
+          }),
+        ],
         relayUrls: [relay],
       })
     );
+  
+    // result.current.notes, etc. as needed
   });
 
   it('should handle optional filter parameters', () => {
+    const createSubscriptionMock = jest.fn();
+  
+    (useSubscription as jest.Mock).mockReturnValue({
+      events: [],
+      hasMore: false,
+      isLoading: false,
+      createSubscription: createSubscriptionMock,
+      removeSubscription: jest.fn(),
+      loadMore: jest.fn(),
+    });
+  
     const relay = 'wss://test.relay';
     const groupId = 'group123';
     const filter = {
@@ -99,19 +134,23 @@ describe('useGroupNotes hook', () => {
       until: 2000,
       limit: 20,
     };
-
-    useGroupNotes(relay, groupId, filter);
-
-    expect(mockCreateSubscription).toHaveBeenCalledWith(
+  
+    renderHook(() => useGroupNotes(relay, groupId, filter));
+  
+    // The hook presumably calls createSubscription(...) with
+    // authors, since, until, limit, etc.
+    expect(createSubscriptionMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        filters: [expect.objectContaining({
-          kinds: [1],
-          '#h': [groupId],
-          authors: ['testPubkey'],
-          since: 1000,
-          until: 2000,
-          limit: 20,
-        })],
+        filters: [
+          expect.objectContaining({
+            kinds: [1],
+            '#h': [groupId],
+            authors: ['testPubkey'],
+            since: 1000,
+            until: 2000,
+            limit: 20,
+          }),
+        ],
         relayUrls: [relay],
       })
     );

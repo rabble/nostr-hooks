@@ -1,3 +1,10 @@
+// Mock React hooks
+jest.mock('react', () => ({
+  ...jest.requireActual('react'),
+  useEffect: jest.fn((f) => f()),
+  useCallback: jest.fn((f) => f),
+}));
+
 // Setup mocks before any imports
 const mockState = {
   groups: {
@@ -13,8 +20,26 @@ const mockState = {
       }
     }
   },
-  updateGroupMetadata: jest.fn()
+  updateGroupMetadata: jest.fn(),
+  subscriptions: {
+    'relay1-group1-metadata': {
+      subscription: null,
+      events: [],
+      eose: false,
+      hasMore: false,
+      listenersCount: 0
+    }
+  }
 };
+
+// Mock hooks
+jest.mock('../hooks', () => ({
+  useSubscription: () => ({
+    createSubscription: mockCreateSubscription,
+    isLoading: false,
+    events: [],
+  }),
+}));
 
 jest.mock('../nip29/store', () => ({
   useNip29Store: Object.assign(

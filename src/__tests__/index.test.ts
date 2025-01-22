@@ -97,58 +97,63 @@ describe('useGroupMetadata hook', () => {
   });
 
   it('should create subscription with correct filters', () => {
-    const mockCreateSubscription = jest.fn();
-    jest.mock('../hooks', () => ({
-      useSubscription: () => ({
-        createSubscription: mockCreateSubscription,
-        isLoading: false,
-        events: [],
+    useGroupMetadata('relay1', 'group1');
+
+    expect(mockCreateSubscription).toHaveBeenCalledWith({
+      filters: [{ kinds: [39000], '#d': ['group1'], limit: 1 }],
+      relayUrls: ['relay1'],
+      onEvent: expect.any(Function)
+    });
+  });
+
+  it('should handle event processing correctly', () => {
+    let capturedOnEvent: ((event: NDKEvent) => void) | undefined;
+    
+    mockCreateSubscription.mockImplementation(({ onEvent }) => {
+      capturedOnEvent = onEvent;
+    });
+
+    const mockUpdateGroupMetadata = jest.fn();
+    jest.mock('../nip29/store', () => ({
+      useNip29Store: jest.fn().mockImplementation((selector) => {
+        if (typeof selector === 'function') {
+          return selector({ groups: {} });
+        }
+        return { updateGroupMetadata: mockUpdateGroupMetadata };
       }),
     }));
 
     useGroupMetadata('relay1', 'group1');
 
-    expect(mockCreateSubscription).toHaveBeenCalledWith(
-      expect.objectContaining({
-        filters: [{ kinds: [39000], '#d': ['group1'], limit: 1 }],
-        relayUrls: ['relay1'],
-      })
-    );
-  });
+    expect(capturedOnEvent).toBeDefined();
 
-  it('should handle event processing correctly', () => {
-    const mockUpdateGroupMetadata = jest.fn();
-    const mockEvent = {
-      dTag: 'group1',
-      getMatchingTags: (tag: string) => {
-        const tags: Record<string, string[][]> = {
-          'name': [['name', 'Test Group']],
-          'picture': [['picture', 'https://example.com/pic.jpg']],
-          'about': [['about', 'Test Description']],
-          'public': [['public', '1']],
-          'open': [['open', '1']],
-        };
-        return tags[tag] || null;
-      },
-    } as unknown as NDKEvent;
+    if (capturedOnEvent) {
+      const mockEvent = {
+        dTag: 'group1',
+        getMatchingTags: (tag: string) => {
+          const tags: Record<string, string[][]> = {
+            'name': [['name', 'Test Group']],
+            'picture': [['picture', 'https://example.com/pic.jpg']],
+            'about': [['about', 'Test Description']],
+            'public': [['public', '1']],
+            'open': [['open', '1']],
+          };
+          return tags[tag] || [];
+        },
+      } as unknown as NDKEvent;
 
-    // Simulate event processing
-    const onEvent = jest.fn();
-    useGroupMetadata('relay1', 'group1');
-    
-    // Verify event processing
-    if (onEvent) {
-      onEvent(mockEvent);
+      capturedOnEvent(mockEvent);
+
       expect(mockUpdateGroupMetadata).toHaveBeenCalledWith(
         'relay1-group1-metadata',
         'group1',
-        expect.objectContaining({
+        {
           name: 'Test Group',
           picture: 'https://example.com/pic.jpg',
           about: 'Test Description',
           isPublic: true,
           isOpen: true,
-        })
+        }
       );
     }
   });

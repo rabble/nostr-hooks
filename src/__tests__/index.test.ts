@@ -2,7 +2,7 @@
 import { describe, expect, it, jest, beforeEach } from '@jest/globals';
 import { useNdk } from '../hooks/use-ndk';
 import { useLogin } from '../hooks/use-login';
-import { useGroupChatNotes } from '../nip29/queries/use-group-chat-notes';
+import { useGroupNotes } from '../nip29/queries/use-group-notes';
 const mockCreateSubscription = jest.fn();
 jest.mock('../store', () => ({
   useStore: jest.fn((selector: (state: any) => any) => selector({
@@ -52,14 +52,14 @@ describe('useNdk hook', () => {
   });
 });
 
-describe('useGroupChatNotes hook', () => {
+describe('useGroupNotes hook', () => {
   beforeEach(() => {
     mockCreateSubscription.mockClear();
   });
 
   it('should not create subscription without relay and groupId', () => {
-    const { chatNotes } = useGroupChatNotes(undefined, undefined);
-    expect(chatNotes).toBeUndefined();
+    const { notes } = useGroupNotes(undefined, undefined);
+    expect(notes).toBeUndefined();
     expect(mockCreateSubscription).not.toHaveBeenCalled();
   });
 
@@ -67,7 +67,7 @@ describe('useGroupChatNotes hook', () => {
     const relay = 'wss://test.relay';
     const groupId = 'group123';
     
-    useGroupChatNotes(relay, groupId);
+    useGroupNotes(relay, groupId);
 
     expect(mockCreateSubscription).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -91,7 +91,7 @@ describe('useGroupChatNotes hook', () => {
       limit: 20,
     };
 
-    useGroupChatNotes(relay, groupId, filter);
+    useGroupNotes(relay, groupId, filter);
 
     expect(mockCreateSubscription).toHaveBeenCalledWith(
       expect.objectContaining({

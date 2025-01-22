@@ -9,4 +9,4 @@ export { useGroupReactions } from './use-group-reactions';
 export { useGroupThreadComments } from './use-group-thread-comments';
 export { useGroupThreads } from './use-group-threads';
 export { useGroupRoles } from './use-group-roles';
-export { useGroupChatNotes } from './use-group-chat-notes';
+export { useGroupNotes } from './use-group-notes';

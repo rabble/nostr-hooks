@@ -110,19 +110,15 @@ describe('useGroupMetadata hook', () => {
   it('should handle event processing correctly', () => {
     let capturedOnEvent: ((event: NDKEvent) => void) | undefined;
     
-    mockCreateSubscription.mockImplementation(({ onEvent }) => {
+    mockCreateSubscription.mockImplementation((params: any) => {
+      capturedOnEvent = params.onEvent;
       capturedOnEvent = onEvent;
     });
 
     const mockUpdateGroupMetadata = jest.fn();
-    jest.mock('../nip29/store', () => ({
-      useNip29Store: jest.fn().mockImplementation((selector) => {
-        if (typeof selector === 'function') {
-          return selector({ groups: {} });
-        }
-        return { updateGroupMetadata: mockUpdateGroupMetadata };
-      }),
-    }));
+    jest.spyOn(useNip29Store, 'getState').mockReturnValue({
+      updateGroupMetadata: mockUpdateGroupMetadata
+    });
 
     useGroupMetadata('relay1', 'group1');
 

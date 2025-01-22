@@ -51,6 +51,96 @@ describe('useNdk hook', () => {
   });
 });
 
+describe('useGroupChatNotes hook', () => {
+  const mockEvents = [
+    {
+      id: 'note1',
+      pubkey: 'pub1',
+      content: 'test content 1',
+      created_at: 1234567890,
+      getMatchingTags: () => [['e', 'parent1']],
+    },
+    {
+      id: 'note2',
+      pubkey: 'pub2',
+      content: 'test content 2',
+      created_at: 1234567891,
+      getMatchingTags: () => [],
+    },
+  ];
+
+  beforeEach(() => {
+    mockCreateSubscription.mockClear();
+  });
+
+  it('should not create subscription without relay and groupId', () => {
+    const { createSubscription } = useSubscription('test-sub');
+    createSubscription({
+      filters: [],
+      relayUrls: [],
+      onEvent: jest.fn(),
+    });
+
+    expect(mockCreateSubscription).not.toHaveBeenCalled();
+  });
+
+  it('should create subscription with correct filters', () => {
+    const { createSubscription } = useSubscription('test-sub');
+    const relay = 'wss://test.relay';
+    const groupId = 'group123';
+    
+    createSubscription({
+      filters: [{ kinds: [1], '#h': [groupId], limit: 10 }],
+      relayUrls: [relay],
+      onEvent: jest.fn(),
+    });
+
+    expect(mockCreateSubscription).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: [expect.objectContaining({ kinds: [1], '#h': [groupId], limit: 10 })],
+        relayUrls: [relay],
+      })
+    );
+  });
+
+  it('should handle optional filter parameters', () => {
+    const { createSubscription } = useSubscription('test-sub');
+    const relay = 'wss://test.relay';
+    const groupId = 'group123';
+    const filter = {
+      byPubkey: { pubkey: 'testPubkey', waitForPubkey: true },
+      since: 1000,
+      until: 2000,
+      limit: 20,
+    };
+
+    createSubscription({
+      filters: [{
+        kinds: [1],
+        '#h': [groupId],
+        authors: [filter.byPubkey.pubkey],
+        since: filter.since,
+        until: filter.until,
+        limit: filter.limit,
+      }],
+      relayUrls: [relay],
+      onEvent: jest.fn(),
+    });
+
+    expect(mockCreateSubscription).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: [expect.objectContaining({
+          kinds: [1],
+          '#h': [groupId],
+          authors: ['testPubkey'],
+          since: 1000,
+          until: 2000,
+          limit: 20,
+        })],
+      })
+    );
+  });
+
 
 describe('useLogin hook', () => {
   it('should return login related functions and state', () => {

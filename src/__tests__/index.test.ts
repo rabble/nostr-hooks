@@ -15,6 +15,18 @@ jest.mock('../store', () => ({
   useStore: jest.fn((selector: any) => selector({
     ndk: undefined,
     subscriptions: {},
+    initNdk: jest.fn(),
+    setSigner: jest.fn(),
+    loginData: {
+      privateKey: undefined,
+      loginMethod: undefined,
+      nip46Address: undefined
+    },
+    loginFromLocalStorage: jest.fn(),
+    loginWithExtension: jest.fn(),
+    loginWithPrivateKey: jest.fn(),
+    loginWithRemoteSigner: jest.fn(),
+    logout: jest.fn(),
   })),
 }));
 
